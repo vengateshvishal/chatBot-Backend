@@ -9,15 +9,16 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from fastapi.middleware.cors import CORSMiddleware
+from pinecone import Pinecone ,ServerlessSpec
 
-# 1. Initialize FastAPI
+
 app = FastAPI(title="HR Policy Chatbot")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allows all origins
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"], # Allows all methods (POST, GET, etc.)
-    allow_headers=["*"], # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class QueryRequest(BaseModel):
@@ -25,11 +26,21 @@ class QueryRequest(BaseModel):
 
 class QueryResponse(BaseModel):
     answer: str
-API_KEY = "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"
+API_KEY = "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"
 BASE_URL = "https://openrouter.ai/api/v1"
+PINECONE_API_KEY ="pcsk_5aPHPw_J19ZvwnzBa1NBsM9jEqxLDM6ikMbQwKwiSt4tE76XJw9NAbkX1xN5pRfvnK1KzD"
 
-loader = PyPDFLoader("HR_Policy_Sample.pdf")
-documents = loader.load()
+pdf_files =["HR_Policy_Sample.pdf","Resume(Vishal).pdf","module 5(2 mark).pdf"]
+pc=Pinecone(api_key=PINECONE_API_KEY)
+index_name="ChatBot"
+index = pc.Index("quickstart")
+
+documents=[]
+
+for pdf in pdf_files:
+    loader =PyPDFLoader(pdf)
+    documents.extend(loader.load())
+
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
 docs = text_splitter.split_documents(documents)
 
@@ -51,7 +62,8 @@ llm = ChatOpenAI(
 
 prompt = ChatPromptTemplate.from_template("""
 You are a helpful assistant.
-Answer ONLY from the context below.
+Answer ONLY from the context below. 
+You must prepend the filename of the source document to your answer in the format: [filename]: [answer].
 If not found, say "I don't know".
 
 Context:

@@ -32,6 +32,7 @@ langgraph-checkpoint
 langgraph-prebuilt
 langgraph-sdk
 langsmith
+langchain_pinecone
 marshmallow
 multidict
 mypy_extensions
