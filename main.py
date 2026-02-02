@@ -25,7 +25,7 @@ class QueryRequest(BaseModel):
 
 class QueryResponse(BaseModel):
     answer: str
-API_KEY = "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"
+API_KEY = "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"
 BASE_URL = "https://openrouter.ai/api/v1"
 
 loader = PyPDFLoader("HR_Policy_Sample.pdf")
